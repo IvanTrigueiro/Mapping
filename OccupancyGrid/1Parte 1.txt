@@ -1,0 +1,14 @@
+// Para ler a imagem
+image = imread('mapaexemplo.bmp');
+
+// Para garantir escala de cinza
+grayImage = rgb2gray(image);
+
+// Para normalizar a imagem
+bwImage = grayImage < 0.5;
+
+// Para montar o grid
+grid = robotics.BinaryOccupancyGrid(bwImage, 50);
+
+// Para mostrar o grid
+show(grid);
