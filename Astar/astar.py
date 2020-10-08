@@ -1,3 +1,4 @@
+import cv2 as cv
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -99,22 +100,44 @@ def astar(maze, start, end):
 
 def main():
 
-    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    start = (0, 0)
-    end = (7, 6)
+
+    fileName = 'imageCellDivision.bmp'
+
+    img = cv.imread(fileName, 0)
+    img_rgb = cv.imread(fileName)
+
+    ret, img = cv.threshold(img,0,255,cv.THRESH_BINARY_INV)
+
+    maze = img // 255
+
+    # start = (0, 0)
+    # end = (7, 6)
+
+    start = (43, 67)
+    end = (64, 42)
 
     path = astar(maze, start, end)
+
+    for pixel in path:
+        img_rgb[pixel[0]][pixel[1]] = (0, 0, 255)
+
     print(path)
+    
+    img_rgb = cv.resize(img_rgb, (450, 360))
+
+    cv.imshow('trail', img_rgb)
+    cv.waitKey(0)
 
 
 if __name__ == '__main__':
