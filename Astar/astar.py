@@ -126,8 +126,15 @@ def main():
     
     img_rgb = cv.imread(fileName)
     
-    start = (43, 67)
-    end = (64, 42)
+            # altura, largura
+    #start = (43, 67)
+    #end = (64, 42)
+    
+    #start = (70, 88)
+    #end = (66, 3)
+    
+    start = (13, 3)
+    end = (13, 25)
 
     path = astar(mapaCells, start, end)
 
