@@ -1,5 +1,3 @@
-import cv2 as cv
-
 class Node():
     """A node class for A* Pathfinding"""
 
@@ -99,44 +97,66 @@ def astar(maze, start, end):
 
 
 def main():
-
-    # maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-
-
-    fileName = 'imageCellDivision.bmp'
-
-    img = cv.imread(fileName, 0)
+    import cv2 as cv
+    import numpy as np
+    import matplotlib.pyplot as plt 
+    
+    # Treating the image
+    mapa = cv.imread("mapa.bmp")
+    cv.imshow("Original map", mapa)
+    mapa_copy = cv.imread("mapa.bmp", 0) # To perform transformations, already grayscale
+    
+    #Binarizing map, first we force 255 to any value higher than 0
+    ret, mapa_copy = cv.threshold(mapa_copy, 0, 255, cv.THRESH_BINARY_INV)
+    mapaBinario = mapa_copy // 255 # Then we divine by 255, so we have 0s and 1s
+    
+    resolucaoAStar = 5 #Used for proportion of AStar cells
+    
+    # Creating a new matrix with zeros and cell(grid) resolution.
+    size = int(mapaBinario.shape[0]/resolucaoAStar), int(mapaBinario.shape[1]/resolucaoAStar)
+    mapaCells = np.zeros(size, dtype=np.uint8)
+    
+    for (i, m) in zip(range(mapaCells.shape[0]), range(0 , mapaBinario.shape[0] +1, 5)):
+        for (j, n) in zip(range(mapaCells.shape[1]), range(0 , mapaBinario.shape[1] +1, 5)):
+            mapaCells[i, j] = mapaBinario[m, n]
+    
+    
+    fileName = 'mapaCells.bmp'
+    #cv.imwrite("mapaCells.bmp", mapaCells)
+    
     img_rgb = cv.imread(fileName)
-
-    ret, img = cv.threshold(img,0,255,cv.THRESH_BINARY_INV)
-
-    maze = img // 255
-
-    # start = (0, 0)
-    # end = (7, 6)
-
+    
     start = (43, 67)
     end = (64, 42)
 
-    path = astar(maze, start, end)
+    path = astar(mapaCells, start, end)
 
     for pixel in path:
         img_rgb[pixel[0]][pixel[1]] = (0, 0, 255)
-
-    print(path)
     
-    img_rgb = cv.resize(img_rgb, (450, 360))
-
-    cv.imshow('trail', img_rgb)
+    
+    # In order to show the path we selected only the color channel we painted 
+    # in img_rgb, and painted a red 3x3 square.
+    for (i, m) in zip(range(img_rgb.shape[0]), range(0 , 1 + mapa.shape[0], 5)):
+        for(j, n) in zip(range(img_rgb.shape[1]), range(0, 1 + mapa.shape[1], 5)):
+            if((img_rgb[i,j,1]==0) and (img_rgb[i,j,0]==0) and (img_rgb[i,j,2]==255)):
+                mapa[m-1, n-1] = img_rgb[i, j]
+                mapa[m, n-1] = img_rgb[i, j]
+                mapa[m+1, n-1] = img_rgb[i, j]
+                mapa[m+1, n] = img_rgb[i, j]
+                mapa[m, n] = img_rgb[i, j]
+                mapa[m-1, n] = img_rgb[i, j]
+                mapa[m-1, n+1] = img_rgb[i, j]
+                mapa[m, n+1] = img_rgb[i, j]
+                mapa[m+1, n+1] = img_rgb[i, j]
+    
+    #Because opencv reads bgr and matplotlib default is rgb the trajectory
+    #color may be different.
+    plt.imshow(mapa,extent=(0, 9, 0, 7.2))
+    plt.show()
+    
+    #cv.imwrite("Trajectorymap.bmp", mapa)
+    cv.imshow("Trajectory map", mapa)
     cv.waitKey(0)
 
 
